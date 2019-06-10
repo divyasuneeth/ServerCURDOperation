@@ -1,0 +1,176 @@
+>>>from sqlalchemy import create_engine
+>>> from sqlalchemy.orm import sessionmaker
+>>> from database_setup import Base,Restaurant,MenuItem
+>>> engine=create_engine('sqlite:///restaurantmenu.db')
+>>> Base.metadata.bind=engine
+>>> DBSession= sessionmaker(bind=engine)
+>>> sessio=DBSession()
+>>> myFirstRestaurant=Restaurant(name="Pizza Palace")
+>>> sessio.add(myFirstRestaurant)
+>>> sessio.commit()
+>>> sessio.query(Restaurant).all()
+[<database_setup.Restaurant object at 0x7f4ceecc5dd0>]
+>>> cheesepizza= MenuItem(name="Cheese Pizza", description="Made with all natural ingredients",course="Entree",price="$8.99",restaurant=myFirstRestaurant)
+>>> sessio.add(cheesepizza)
+>>> sessio.commit()
+>>> sessio.query(MenuItem).all()
+
+[<database_setup.MenuItem object at 0x7f4ceecc5b10>]
+
+>>> firstResult=sessio.query(Restaurant).first()
+>>> firstResult.name
+u'Pizza Palace'
+>>> veggieBurgers=sessio.query(MenuItem).filter_by(name='Veggie Burger')
+>>> for veggieBurger in veggieBurgers:
+...     print veggieBurger.restaurant.name
+...     print veggieBurger.id
+...     print veggieBurger.price
+...     print "\n"
+...
+Urban Burger
+2
+$7.50
+
+
+Urban Burger
+10
+$5.99
+
+
+Panda Garden
+21
+$9.50
+
+
+Thyme for That Vegetarian Cuisine
+27
+$6.80
+
+
+Andala's
+37
+$7.00
+
+
+Auntie Ann's Diner'
+43
+$9.50
+
+urbanVeggieBurger= sessio.query(MenuItem).filter_by(id = 10).one()
+>>> print urbanVeggieBurger.price
+$5.99
+
+>>> urbanVeggieBurger.price="$2.99"
+>>> sessio.add(urbanVeggieBurger)
+>>> sessio.commit()
+>>> for veggieBurger in veggieBurgers:
+...     print veggieBurger.restaurant.name
+...     print veggieBurger.id
+...     print veggieBurger.price
+...     print "\n"
+...
+Urban Burger
+2
+$7.50
+
+
+Urban Burger
+10
+$2.99
+
+
+Panda Garden
+21
+$9.50
+
+
+Thyme for That Vegetarian Cuisine
+27
+$6.80
+
+
+Andala's
+37
+$7.00
+
+
+Auntie Ann's Diner'
+43
+$9.50
+
+// to update all the veggieBurgers  who's price is not 2.99
+
+>>> for veggieBurger in veggieBurgers:
+...     if veggieBurger.price !="$2.99":
+...             veggieBurger.price="$2.99"
+...             sessio.add(veggieBurger)
+...             sessio.commit()
+...
+>>> for veggieBurger in veggieBurgers:
+...     print veggieBurger.restaurant.name
+...     print veggieBurger.id
+...     print veggieBurger.price
+...     print "\n"
+...
+Urban Burger
+2
+$2.99
+
+
+Urban Burger
+10
+$2.99
+
+
+Panda Garden
+21
+$2.99
+
+
+Thyme for That Vegetarian Cuisine
+27
+$2.99
+
+
+Andala's
+37
+$2.99
+
+
+Auntie Ann's Diner'
+43
+$2.99
+
+//Delete a data
+
+spinach= sessio.query(MenuItem).filter_by(name='Spinach Ice Cream').one()
+>>> print spinach.restaurant.name
+Auntie Ann's Diner'
+
+>>> sessio.delete(spinach)
+>>> sessio.commit()
+
+//No row found error is dispalyed as the data was deleted.
+
+>>> spinach= sessio.query(MenuItem).filter_by(name='Spinach Ice Cream').one()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/local/lib/python2.7/dist-packages/sqlalchemy/orm/query.py", line 3282, in one
+    raise orm_exc.NoResultFound("No row was found for one()")
+sqlalchemy.orm.exc.NoResultFound: No row was found for one()
+
+
+>>> items=session.query(Restaurant).all()
+>>> for item in items:
+...     print item.name
+
+Pizza Palace
+Urban Burger
+Super Stir Fry
+Panda Garden
+Thyme for That Vegetarian Cuisine
+Tony's Bistro
+Andala's
+Auntie Ann's Diner'
+Cocina Y Amor
+State Bird Provisions
